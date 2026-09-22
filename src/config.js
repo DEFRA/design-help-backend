@@ -112,6 +112,12 @@ export const config = convict({
       }
     }
   },
+  approvedEmails: {
+    doc: 'Comma-separated emails seeded with sign-in approval at startup',
+    format: String,
+    default: '',
+    env: 'APPROVED_EMAILS'
+  },
   httpProxy: {
     doc: 'HTTP Proxy URL',
     format: String,
