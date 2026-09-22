@@ -1,6 +1,27 @@
 # design-help-backend
 
-Core delivery platform Node.js Backend Template.
+The data API for [design-help](https://github.com/DEFRA/design-help), Defra DDTS's internal design-community directory. Hapi + MongoDB on Defra's Core Delivery Platform; internal-only (reachable from the frontend, the API gateway or the CDP terminal — direct external requests get a 403 from the platform).
+
+It stores everything in a single `people` collection: identity/allow-list (email + approved), profile fields, admin and line-manager flags, manager allocation, long-term helping, and embedded GDaD evidence/scores per skill. This replaces the prototype's eight Postgres tables; authentication (magic links, sessions) lives entirely in the frontend — this API holds no passwords or tokens.
+
+## API summary
+
+| Route                                                             | Purpose                                                                                  |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `GET /people?filter=&sort=`                                       | List people (case-insensitive filter over name/role/tags/free text; sort `a-z`/`z-a`)    |
+| `POST /people`                                                    | Create a person — a bare `{email}` is an allow-list entry; profile fields optional       |
+| `GET /people/{idOrSlug}` · `GET /people/by-email/{email}`         | Fetch one person                                                                         |
+| `PATCH /people/{id}`                                              | Update profile fields / email / approval                                                 |
+| `DELETE /people/{id}?mode=full\|profile\|access`                  | Delete entirely (with reference cleanup), clear the profile only, or revoke sign-in only |
+| `POST /people/{id}/activate`                                      | Record first sign-in                                                                     |
+| `POST /people/{id}/admin`                                         | Grant/revoke the dynamic admin flag                                                      |
+| `PUT /people/{id}/helping`                                        | Replace availability + long-term helpee list                                             |
+| `PUT /people/{id}/manager`                                        | Allocate a line manager (must hold the line-manager flag)                                |
+| `PUT /line-managers`                                              | Replace the whole line-manager set (prunes stale allocations)                            |
+| `GET /helping-pairs`                                              | All helper→helpee pairs                                                                  |
+| `PUT /people/{id}/gdad/evidence` · `PUT /people/{id}/gdad/scores` | Upsert GDaD evidence / official scores per skill                                         |
+
+Config: `APPROVED_EMAILS` (comma-separated) is seeded idempotently at startup under a mongo-lock, so a fresh environment is usable immediately.
 
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
@@ -114,11 +135,7 @@ git config --global core.autocrlf false
 
 ## API endpoints
 
-| Endpoint             | Description                    |
-| :------------------- | :----------------------------- |
-| `GET: /health`       | Health                         |
-| `GET: /example    `  | Example API (remove as needed) |
-| `GET: /example/<id>` | Example API (remove as needed) |
+`GET /health` is the platform health check. The service's own routes are listed in the [API summary](#api-summary) above and defined in `src/routes/people.js`.
 
 ## Development helpers
 
