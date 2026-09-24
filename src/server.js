@@ -10,6 +10,7 @@ import { failAction } from '#/common/helpers/fail-action.js'
 import { pulse } from '#/plugins/pulse.js'
 import { requestTracing } from '#/plugins/request-tracing.js'
 import { seedApprovedEmailsPlugin } from '#/plugins/seed-approved-emails.js'
+import { seedMigrationPlugin } from '#/plugins/seed-migration.js'
 import { metrics } from '@defra/cdp-metrics'
 
 export async function createServer() {
@@ -57,6 +58,7 @@ export async function createServer() {
       options: config.get('mongo')
     },
     seedApprovedEmailsPlugin,
+    seedMigrationPlugin,
     router
   ])
 
