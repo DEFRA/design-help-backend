@@ -118,13 +118,6 @@ export const config = convict({
     default: '',
     env: 'APPROVED_EMAILS'
   },
-  migrationSeedKey: {
-    doc: 'Hex key that unlocks the bundled one-shot prototype migration seed; unset disables it',
-    format: String,
-    default: '',
-    sensitive: true,
-    env: 'MIGRATION_SEED_KEY'
-  },
   httpProxy: {
     doc: 'HTTP Proxy URL',
     format: String,
